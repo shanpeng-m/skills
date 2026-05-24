@@ -1,0 +1,4 @@
+interface:
+  display_name: "Interview Plan"
+  short_description: "Challenge plans through structured decisions"
+  default_prompt: "Use $interview-plan to stress-test my design one decision at a time."
