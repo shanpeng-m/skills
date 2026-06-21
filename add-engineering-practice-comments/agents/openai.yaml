@@ -1,0 +1,4 @@
+interface:
+  display_name: "Add Engineering Practice Comments"
+  short_description: "Add useful non-obvious code comments"
+  default_prompt: "Use $add-engineering-practice-comments to add precise, non-redundant comments to this code."
