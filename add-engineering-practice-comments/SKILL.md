@@ -1,11 +1,11 @@
 ---
 name: add-engineering-practice-comments
-description: Add, improve, or review source-code comments according to engineering-practice standards. Use when the user asks to append/add comments, improve code comments, document interfaces, explain non-obvious implementation choices, clarify data structure fields, record cross-module rules, or address review feedback that code behavior is not obvious.
+description: Add, improve, or review source-code comments according to engineering-practice standards. Use when the user asks to append/add comments, improve in-code documentation, document abstractions and interfaces, explain non-obvious implementation choices, clarify data structure fields, record cross-module rules, preserve design rationale for future maintainers or AI agents, or address review feedback that code behavior is not obvious.
 ---
 
 # Add Engineering Practice Comments
 
-Use this skill to add comments that explain information a future maintainer cannot reliably infer from the nearby code declaration or statement.
+Use this skill to add comments that explain information a future maintainer cannot reliably infer from the nearby code declaration or statement. Treat comments as part of the abstraction: they should let callers and maintainers avoid reading irrelevant implementation details.
 
 ## Core Rule
 
@@ -20,15 +20,19 @@ Prefer comments that explain:
 
 Avoid comments that merely translate names or statements into prose.
 
+Do not accept "good code is self-documenting" as a reason to omit interface or design documentation. Good names and structure reduce comment volume, but they cannot express every contract, rationale, side effect, or hidden dependency.
+
 ## Workflow
 
 1. Inspect existing code and local comment conventions before editing.
 2. Classify each candidate comment as interface, data member, implementation, or cross-module.
-3. Add the smallest useful comment at the natural discovery point.
-4. Prefer renaming unclear code before adding a comment when a better name can remove the need.
-5. Keep implementation details out of interface comments.
-6. Re-read each added comment against the nearby code and delete it if a first-time reader could write the same comment without understanding the system.
-7. Run the relevant formatter or test command when comments affect generated docs, lint rules, or public declarations.
+3. Ask whether missing documentation is hiding a design issue. If the needed comment is long, awkward, or implementation-heavy, consider whether a name, API boundary, type, or module split should be improved first.
+4. Add the smallest useful comment at the natural discovery point.
+5. Prefer renaming unclear code before adding a comment when a better name can remove the need.
+6. Keep implementation details out of interface comments.
+7. Update or remove stale nearby comments in the same edit so new documentation does not conflict with old documentation.
+8. Re-read each added comment against the nearby code and delete it if a first-time reader could write the same comment without understanding the system.
+9. Run the relevant formatter or test command when comments affect generated docs, lint rules, or public declarations.
 
 For larger comment passes, ambiguous cases, or review-quality sweeps, read `references/commenting-principles.md` before editing.
 
@@ -48,6 +52,8 @@ Document the caller-facing contract:
 - Preconditions that callers must satisfy, especially required call ordering.
 
 Do not describe internal algorithms, private data structures, RPC layouts, caches, or scheduling mechanics unless the caller must know them to use the API correctly.
+
+If callers must read implementation code to use an API correctly, treat that as an abstraction failure. Fix it with interface documentation, a clearer API, or both.
 
 ### Data Member Comments
 
@@ -89,6 +95,10 @@ Prefer one authoritative location that future maintainers will naturally visit, 
 
 At dependent call sites, add short pointer comments to the authoritative note instead of duplicating the full explanation.
 
+## AI Agent Context
+
+When code will be maintained or reviewed by AI agents, prefer compact interface, data-shape, invariant, and rationale comments that prevent future agents from loading broad implementation context just to infer intent. Keep these comments precise; do not add verbose summaries that repeat code.
+
 ## Quality Bar
 
 A useful comment answers at least one maintainer question that the nearby code does not answer:
@@ -100,5 +110,7 @@ A useful comment answers at least one maintainer question that the nearby code d
 - Why is this branch necessary?
 - Why must operations happen in this order?
 - What other files must change with this one?
+- Can a caller or future agent use this abstraction without reading the implementation?
+- Did writing the comment reveal an API, name, type, or module boundary that should be improved instead?
 
 Treat reviewer confusion as evidence that something is not obvious. Fix it with clearer code, a better name, a focused comment, or some combination of those.

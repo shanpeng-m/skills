@@ -2,11 +2,55 @@
 
 Use this reference for nontrivial comment additions, broad comment sweeps, or review feedback about unclear code.
 
+## Why Comments Matter
+
+In-code documentation records design information that code cannot express directly. This includes contracts, rationale, constraints, side effects, failure behavior, and cross-module dependencies.
+
+Good documentation reduces two major forms of complexity:
+
+- Cognitive load: maintainers can get the relevant facts without reconstructing them from many files.
+- Unknown unknowns: maintainers can see which rules, dependencies, and related code paths matter for a change.
+
+Comments are also valuable for the original author. After a few weeks, implementation details and design rationale are easy to forget.
+
+For AI-assisted development, concise comments can reduce token cost and improve correctness by preserving intent near the code instead of forcing agents to load and infer from broad context.
+
 ## Principle
 
 Comments should describe information that is not directly visible from the nearby code. "Nearby code" means the declaration or statement next to the comment, not the entire application.
 
 The goal is to make structure and behavior obvious enough that maintainers can understand and modify code without reconstructing hidden rules from scattered implementations.
+
+## Comments And Abstraction
+
+Comments are part of the abstraction boundary. A declaration only exposes names, types, and signatures; it usually cannot express the full contract.
+
+Interface documentation should let a caller use a class or method without reading the implementation. If using an API correctly requires reading its body, the API is not presenting a useful abstraction.
+
+Use comments to hide complexity, not expose it. Put caller-facing contract in interface comments and maintenance-facing mechanics in implementation comments.
+
+## Documentation As A Design Tool
+
+Write important interface comments while designing or changing the API, not only after the implementation is complete.
+
+If a comment is difficult to write, treat that as a design signal:
+
+- A vague comment may indicate an unclear abstraction.
+- A long interface comment full of implementation details may indicate a shallow or leaky API.
+- Repeated comments across files may indicate a missing central abstraction or design note.
+- A comment that mostly compensates for a bad name may indicate the name should change.
+
+Prefer improving the design when that removes confusion. Keep the comment when the information is inherently not expressible in code, such as rationale, side effects, invariants, units, or cross-module rules.
+
+## Common Objections
+
+Do not accept "good code is self-documenting" as a blanket reason to omit documentation. Clear names and structure are important, but they cannot fully express behavior, return semantics, preconditions, design rationale, or visible failure modes.
+
+Do not accept "there is no time" as a reason to skip important interface documentation. Class and method comments are design work; they often pay for themselves immediately by forcing clearer abstractions and reducing future maintenance cost.
+
+Do not accept "comments go stale" as a reason to avoid comments. Reduce staleness by keeping comments close to the code they describe, avoiding duplicated documentation, and updating comments in the same change as the code.
+
+Do not accept "bad comments are common" as a reason to avoid comments. Delete or rewrite bad comments; do not let poor examples define the standard.
 
 ## Avoid Repeating Code
 
@@ -96,6 +140,8 @@ For functions and methods, describe:
 
 Do not include private implementation mechanics in interface comments. If an interface comment must explain implementation details for callers to use the API, consider whether the API is too shallow or leaky.
 
+Avoid replacing interface comments with tiny extracted methods whose names try to carry a whole paragraph of meaning. A precise comment is often clearer than a long method name that repeats documentation at every call site.
+
 ## Implementation Documentation
 
 Implementation comments help maintainers understand internal code. Most short functions do not need them.
@@ -128,6 +174,16 @@ At secondary sites, use a short pointer:
 
 Avoid copying the same long explanation across files; duplicated cross-module documentation goes stale.
 
+## Maintenance Discipline
+
+Maintain comments as part of every code change:
+
+- Update nearby comments when changing behavior.
+- Delete comments that no longer add information.
+- Prefer one authoritative source for each rule.
+- Keep comments close to the declarations or blocks they describe when there is a natural location.
+- Use code review to catch stale, misleading, or missing comments.
+
 ## Review Checklist
 
 Before finishing, verify that each added comment:
@@ -139,3 +195,5 @@ Before finishing, verify that each added comment:
 - Is precise about units, ranges, ownership, nulls, and invariants.
 - Explains why when code is surprising.
 - Does not compensate for a name or structure that should simply be improved.
+- Lets callers understand public abstractions without reading private implementation.
+- Has been updated together with any changed behavior it describes.
